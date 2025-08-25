@@ -1,7 +1,7 @@
 fastapi
 uvicorn[standard]
 pydantic
-pydantic_settings
+pydantic
 python-dotenv
 pandas
 numpy
