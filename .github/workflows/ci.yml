@@ -1,19 +1,48 @@
-name: CI (simple)
+name: CI + CD
 
 on:
   push:
     branches: [ main ]
 
 jobs:
+  # --- CI Stage ---
   test_and_train:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-      - name: Install deps
+
+      - name: Install dependencies
         run: pip install -r requirements.txt
+
       - name: Run training script (small demo)
         run: python scripts/train_explainable.py --data data/UpdatedResumeDataSet.csv
+
+  # --- CD Stage ---
+  deploy:
+    needs: test_and_train
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render Deploy
+        run: curl -X POST "$RENDER_DEPLOY_HOOK_URL"
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+
+      - name: Wait for service to be live
+        run: |
+          echo "Waiting for deployment at https://resume-matcher-app-e1k0.onrender.com ..."
+          for i in {1..20}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://resume-matcher-app-e1k0.onrender.com/health || true)
+            if [ "$STATUS" -eq 200 ]; then
+              echo "✅ Service is live at https://resume-matcher-app-e1k0.onrender.com"
+              exit 0
+            fi
+            echo "Retry $i: Service not live yet. Retrying in 15s..."
+            sleep 15
+          done
+          echo "❌ Service did not become healthy in time"
+          exit 1
