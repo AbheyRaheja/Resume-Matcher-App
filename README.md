@@ -19,7 +19,6 @@ An **AI-powered Resume-to-Job Matcher** that:
   - MLflow for experiment tracking.
   - DVC for dataset versioning.
   - GitHub Actions for CI/CD.
-  - AWS-ready
 
 ---
 
