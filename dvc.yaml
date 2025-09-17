@@ -1,0 +1,9 @@
+stages:
+  train:
+    cmd: python scripts/train_explainable.py --data data/UpdatedResumeDataSet.csv
+    deps:
+      - scripts/train_explainable.py
+      - data/UpdatedResumeDataSet.csv
+    outs:
+      - models/pipeline.pkl
+      - experiments/results.csv

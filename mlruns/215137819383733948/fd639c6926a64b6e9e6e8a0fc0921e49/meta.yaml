@@ -1,0 +1,14 @@
+artifact_uri: file:///D:/Summer/Python/ops/Resume/temp/final2/mlruns/215137819383733948/fd639c6926a64b6e9e6e8a0fc0921e49/artifacts
+end_time: 1758092284174
+entry_point_name: ''
+experiment_id: '215137819383733948'
+lifecycle_stage: active
+run_id: fd639c6926a64b6e9e6e8a0fc0921e49
+run_name: logreg
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1758092283034
+status: 3
+tags: []
+user_id: Abhey

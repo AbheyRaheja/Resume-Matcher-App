@@ -1,0 +1,23 @@
+schema: '2.0'
+stages:
+  train:
+    cmd: python scripts/train_explainable.py --data 
+      data/UpdatedResumeDataSet.csv
+    deps:
+    - path: data/UpdatedResumeDataSet.csv
+      hash: md5
+      md5: e80e3934425045332b63eb42768ecf32
+      size: 3064900
+    - path: scripts/train_explainable.py
+      hash: md5
+      md5: 669934c7d48da1fff1d39c8a8e4ab782
+      size: 4658
+    outs:
+    - path: experiments/results.csv
+      hash: md5
+      md5: 3b124828c2e0f431a52d718a7e7ddf76
+      size: 155
+    - path: models/pipeline.pkl
+      hash: md5
+      md5: 83a2445261c0b892066a7d59b81602d1
+      size: 2178094

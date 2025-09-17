@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+import pandas as pd
 
 BASE_URL = "http://127.0.0.1:8000"
 UPLOAD_ENDPOINT = f"{BASE_URL}/resume/upload"
@@ -8,11 +9,10 @@ st.set_page_config(page_title="Resume Job Matcher", layout="wide")
 st.title("📄 Resume Job Matcher")
 
 st.markdown("""
-Upload your resume and get job recommendations instantly! 
-The backend will handle text extraction and find the best matching jobs.
+Upload your resume and get job recommendations instantly!  
+The backend will handle text extraction, predict your job category, and fetch matching jobs.
 """)
 
-# Upload PDF
 uploaded_file = st.file_uploader("Upload your resume (PDF)", type=["pdf"])
 
 if uploaded_file:
@@ -23,15 +23,24 @@ if uploaded_file:
             response.raise_for_status()
             data = response.json()
 
-            results = data.get("results", [])
+            # --- Show predictions ---
+            preds = data.get("predictions", [])
+            if preds:
+                st.subheader("🔮 Predicted Categories")
+                df = pd.DataFrame(preds)
+                st.bar_chart(df.set_index("label")["probability"])
+            else:
+                st.warning("No predictions found.")
 
-            st.markdown("### Recommended Jobs")
-            if results:
-                for job in results:
-                    st.markdown(f"#### Role: {job['title']}")
+            # --- Show jobs ---
+            jobs = data.get("jobs", [])
+            st.subheader("💼 Recommended Jobs")
+            if jobs:
+                for job in jobs:
+                    st.markdown(f"#### {job['title']}")
+                    st.markdown(f"**Company:** {job.get('company', 'N/A')}")
                     st.markdown(f"**Location:** {job['location']}")
-                    st.markdown(f"**Job Preview:** {job['preview']}...")
-                    st.markdown(f"[Apply Here]({job['link']})", unsafe_allow_html=True)
+                    st.markdown(f"[👉 Apply Here]({job['redirect_url']})", unsafe_allow_html=True)
                     st.markdown("---")
             else:
                 st.info("No jobs found for this resume. Try another one!")

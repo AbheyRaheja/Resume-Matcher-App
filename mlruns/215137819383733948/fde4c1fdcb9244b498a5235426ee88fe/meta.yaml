@@ -1,0 +1,14 @@
+artifact_uri: file:///D:/Summer/Python/ops/Resume/temp/final2/mlruns/215137819383733948/fde4c1fdcb9244b498a5235426ee88fe/artifacts
+end_time: 1758092929054
+entry_point_name: ''
+experiment_id: '215137819383733948'
+lifecycle_stage: active
+run_id: fde4c1fdcb9244b498a5235426ee88fe
+run_name: xgboost
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1758092926750
+status: 3
+tags: []
+user_id: Abhey

@@ -1,11 +1,33 @@
-from fastapi import FastAPI
-from .routers.resume import router as resume_router
+from fastapi import FastAPI, UploadFile, File, HTTPException
+from app.utils.pdf import extract_text_from_pdf
+from app.utils.text import clean_resume
+from app.utils.jobs import fetch_jobs
+from app.services.ml_simple import predict_topk
+from app.config import settings
 
-app = FastAPI(title="Resume Matcher API", version="2.0.0")
+app = FastAPI(title="Resume Matcher - Explainable")
 
-# Single unified route
-app.include_router(resume_router, prefix="/resume", tags=["Resume & Recommendations"])
 
-@app.get("/health", tags=["Health"])
+@app.post("/resume/upload")
+async def upload(file: UploadFile = File(...)):
+    if not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF allowed")
+
+    # 1. Extract + clean text
+    text = extract_text_from_pdf(file.file)
+    clean_text = clean_resume(text)
+
+    # 2. Predict top categories
+    preds = predict_topk(clean_text, k=settings.TOP_K_PREDICTIONS)
+    predictions = [{"label": l, "probability": float(p)} for l, p in preds]
+
+    # 3. Fetch jobs for top prediction
+    top_label = predictions[0]["label"]
+    jobs = fetch_jobs(top_label, location="india", results_per_page=5)
+
+    return {"predictions": predictions, "jobs": jobs}
+
+
+@app.get("/health")
 def health():
     return {"status": "ok"}
