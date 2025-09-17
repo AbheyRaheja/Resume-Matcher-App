@@ -1,0 +1,37 @@
+name: CI + CD
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  test_and_train:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run training script (small demo)
+        run: python scripts/train_explainable.py --data data/UpdatedResumeDataSet.csv
+
+  deploy-backend:
+    needs: test_and_train
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render Backend Deploy
+        run: curl -X POST "$RENDER_BACKEND_HOOK_URL"
+        env:
+          RENDER_BACKEND_HOOK_URL: ${{ secrets.RENDER_BACKEND_HOOK_URL }}
+
+  deploy-frontend:
+    needs: test_and_train
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render Frontend Deploy
+        run: curl -X POST "$RENDER_FRONTEND_HOOK_URL"
+        env:
+          RENDER_FRONTEND_HOOK_URL: ${{ secrets.RENDER_FRONTEND_HOOK_URL }}
